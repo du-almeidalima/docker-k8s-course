@@ -1,4 +1,4 @@
-# 1 - Docker Images and Containers
+# 2 - Docker Images and Containers
 
 To create a container from an image I can use the command: `docker run {IMAGE_NAME}`. If the image is not available locally, Docker will try to pull it from the Docker Hub.
 
