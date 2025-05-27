@@ -8,7 +8,11 @@ RUN npm install
 
 COPY . .
 
-EXPOSE 80
+ARG DEFAULT_PORT=80
+
+ENV PORT=${DEFAULT_PORT}
+
+EXPOSE ${PORT}
 
 # The path INSIDE of the container, that should be mapped to a directory on the host machine.
 # The directory of the host machine is not actually provided here, instead, Docker is controlling where it's placed.
