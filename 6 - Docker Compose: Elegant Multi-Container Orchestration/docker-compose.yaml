@@ -1,0 +1,60 @@
+# Version is obsolete now
+# version: "3.8"
+
+# Services translate to the containers that will be created
+services:
+  goals-mongodb:
+    # This can be an image on DockerHub, a private repository (URL) or an image I created by just using its name:tag
+    image: mongo:latest
+    # Exactly the same as when using the docker run command
+    volumes:
+      - goals_mongodb_data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "admin"
+      MONGO_INITDB_ROOT_PASSWORD: "admin"
+    # This is not needed as explained below
+    # networks:
+
+  goals-node-app:
+    # This would be ok, however, it wouldn't work if the image is not already built/available
+    # image: 'goals-node'
+    # Instead of using an existing the image, I can use the build and give Docker the commands/configs to create the image
+    # Short Form: Docker looks for a Dockerfile on that location
+    build: ./backend
+    # Long Form:
+    # build:
+      # context: ./backend
+      # dockerfile: Dockerfile
+      # args:
+        # - name=value
+    ports:
+      - 8000:80
+    volumes:
+      - goals_node_app_logs:/app/logs
+    # I could also add Bind Mounts (with relative path available) and Anonymous volumes. They don't need to be specified on the root volumes property
+    environment:
+      MONG_DB_USER: "admin"
+      MONG_DB_PASSWORD: "admin"
+    # This is useful to set up a dependency chain. Docker will only run this container when the provided is available.
+    depends_on:
+      - goals-mongodb
+
+  goals-react-app:
+    build: ./frontend
+    ports:
+      - 3000:80
+    depends_on:
+    - goals-node-app
+    # This is useful if the application require user inputs via cli
+    # stdin_open: true
+    # tty: true
+
+# Named volumes also need to be declared here and reused by one or more service
+volumes:
+  goals_mongodb_data:
+  goals_node_app_logs:
+
+
+# Networks: By default, when using docker compose, a network is created and assigned for all containers/services.
+# I can use the service name, like goals-mongodb and goals-node-app, to make internal network calls (even though their actual containers are called something else).
+# Those are provided by Docker compose automatically
